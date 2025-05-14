@@ -1,134 +1,17 @@
+/*
+Por qual motivo deve-se usar uma pilha?
+R: A pilha é usada nesse contexto para simular uma recursão, que por baixo dos panos, utilizam pilhas.
+
+Considere o texto abaixo e discuta com o grupo. No início do arquivo principal, coloque como comentário se a estratégia faz sentido e se ela foi implementada
+"A estratégia iterativa do algoritmo Quicksort oferece uma vantagem ao estabelecer limites para o tamanho da pilha. Em contraste com a abordagem recursiva, que insere duas partições na pilha de execução em ordem arbitrária, a versão iterativa verifica os tamanhos das partições antes de adicionar à pilha. Além disso, ao adotar uma política que prioriza a inserção dos índices da partição maior do vetor antes dos índices da partição menor, permite que o lado menor seja processado antes do lado maior. Como resultado, o tamanho da pilha é da ordem de O(log(n))."
+R: A estratégia faz sentido e ela foi implementada, porém no código não é feita nenhuma verificação quanto ao tamanho, apenas se pega primeiro o lado esquerdo. Um ponto que
+pode ser ressaltado é que usando uma linked-list duplamente encadeada para implementar a pilha, não temos problemas com o tamanho da pilha.
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
-
-//Defining nodes
-typedef struct t_no{
-    struct t_no* next;
-    struct t_no* prev;
-    int start_index;
-    int end_index;
-} t_node;
-
-//Defining stacks
-typedef struct {
-    t_node* start;
-    t_node* top;
-}t_stack;
-
-//Create stack function
-t_stack* create_stack(){
-    t_stack* stack = (t_stack*) malloc(sizeof(t_stack));
-    stack->start = NULL;
-    stack->top = NULL;
-    return stack;
-}
-
-//Create node function
-t_node* create_node(int start, int end){
-    t_node* node = (t_node*) malloc(sizeof(t_node));
-    node->start_index = start;
-    node->end_index = end;
-    node->next = NULL;
-    node->prev = NULL;
-    return node;
-}
-
-//Create array with elements typed by the user
-int* create_array(int size){
-    int* array = (int*) malloc(sizeof(int)*size);
-    for (int i = 0; i < size; i++){
-        int item;
-        scanf("%d", &item);
-        array[i] = item;
-    }
-    return array;
-}
-
-//Verify if the function is empty
-int is_empty(t_stack* stack){
-    return stack->start == NULL;
-}
-
-//Insert a new node in the stack
-void push(t_stack* stack, t_node* node){
-    if(stack->start == NULL){
-        stack->start = node;
-        stack->top = node;
-    } else {
-        t_node* previous = stack->start;
-        while(previous != stack->top){
-            previous = previous->next;
-        }
-        previous->next = node;
-        node->prev = previous;
-        stack->top = node;
-    }
-}
-
-//Remove the top node in the stack
-void pop(t_stack* stack){
-    if (is_empty(stack)){
-        return;
-    } else if (stack->start != stack->top){
-        t_node* prev = stack->top->prev;
-        free(stack->top);
-        prev->next = NULL;
-        stack->top = prev;
-    }else{
-        free(stack->start);
-        stack->start = NULL;
-        stack->top = NULL;
-    }
-}
-
-//Free all the allocated elements
-void destroy_stack(t_stack* stack){
-    t_node* node = stack->top;
-    while (node != NULL){
-        t_node* previous = node->prev;
-        stack->top = previous;
-        free(node);
-        node = previous;
-    }
-    free(stack);
-}
-
-//Swap the elements in the array with each other. The result is a array with all elements below the pivot on the left and all the elements above the pivot on the right
-void swap(int* vet, int start, int end, int* pivot){
-    int i = start, j = end, aux;
-    while (j >= i){
-        if (vet[i] > vet[*pivot]){
-            if (vet[j] <= vet[*pivot]){
-                aux = vet[i];
-                vet[i] = vet[j];
-                vet[j] = aux;
-                if (vet[j] == vet[*pivot]) {
-                    *pivot = i;
-                } 
-            }
-            j--;
-        } else {
-            i++;
-        }
-    }
-}
-
-//Executes the quick sort using a stack
-void quick(int* vet, int start, int size){
-    t_stack* stack = create_stack();
-    push(stack, create_node(start, size));
-    while(!is_empty(stack)){
-        int start = stack->top->start_index, end = stack->top->end_index;
-        pop(stack);
-        if (start != end){
-            int pivot = (start+end)/2;
-            swap(vet, start, end-1, &pivot);
-            push(stack, create_node(pivot+1, end));
-            push(stack, create_node(start, pivot));
-        }
-    }
-    destroy_stack(stack);
-}
+#include "funcoes.h"
 
 int main(int argc, char const *argv[]){
     int size;
@@ -138,6 +21,6 @@ int main(int argc, char const *argv[]){
     for (int i = 0; i < size; i++){
         printf("%d ", array[i]);
     }
-    free(array);
+    destroy_array(array);
     return 0;
 }
